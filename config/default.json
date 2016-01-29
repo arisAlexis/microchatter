@@ -1,0 +1,15 @@
+{
+  "secure":false,
+  "sslKey":"./keys/private-key.pem",
+  "sslCert":"./keys/cert.pem",
+  "sslPort":"443",
+  "port":8080,
+  "jwtSecret":"4iRwfYZuo5lGGNz",
+  "postgresql":{
+    "host":"localhost",
+    "port":"5432",
+    "user":"microchatter",
+    "password":"micro123",
+    "database":"microchatter"
+  }
+}
