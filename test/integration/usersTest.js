@@ -29,5 +29,7 @@ describe('user CRUD', () => {
     .set('Accept', 'application/json')
     .expect(400);
   });
+  it('register with jwt', () => {
 
+  });
 });

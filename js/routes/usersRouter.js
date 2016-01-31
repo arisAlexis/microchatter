@@ -14,8 +14,8 @@ router.post('/login', (req, res) => {
 
   UserService.basicAuth(req.body.username, req.body.password)
   .then((user) => {
-    const token = lib.buildToken({ userId: user.user_id, username: user.username });
-    res.json({ token });
+    const token = lib.buildToken({ user_id: user.user_id, username: user.username });
+    return res.json({ token });
   })
   .catch((err) => lib.cerror(err, res));
 });
@@ -25,14 +25,15 @@ router.post('/login', (req, res) => {
  */
 router.post('/', auth, (req, res) => {
   // only the admin account can perform registrations (that is called from the other backend)
-  if (!req.auth.username === 'admin') return res.sendStatus(400);
+  if (req.mode === 'basic' && !req.auth.username === 'admin') return res.sendStatus(400);
 
   if (!req.body.username || ! req.body.password) return res.sendStatus(400);
 
   UserService.register(req.body.username, req.body.password)
   .then((data) => {
-    const token = lib.buildToken({ userId: data.user_id, username: req.body.username });
-    res.json({ token });
+    const tokenData = { user_id: data.user_id, username: req.body.username };
+    const token = lib.buildToken(tokenData);
+    return res.json({ token });
   })
   .catch((err) => lib.cerror(err, res));
 });

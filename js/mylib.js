@@ -3,22 +3,23 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 
 const secret = config.get('jwtSecret');
-const expiresInMinutes = 4320;
+const expiresIn = 86400;
 
-module.exports = function buildToken(tokenData) {
-  return jwt.sign(tokenData, secret, { expiresInMinutes });
+exports.buildToken = function buildToken(tokenData) {
+  const token = jwt.sign(tokenData, secret, { expiresIn });
+  return token;
 };
 
-module.exports = function cerror(err, res) {
+exports.cerror = function cerror(err, res) {
   const errorCode = err.code || err.statusCode || 500;
 
   if (errorCode === 500 || err.stack) {
-    console.err(err);
+    console.log(err);
   }
 
   res.status(errorCode).send({ error: err.message });
 };
 
-module.exports = function ustamp() {
+exports.ustamp = function ustamp() {
   return Math.round(new Date().getTime() / 1000);
 };

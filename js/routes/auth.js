@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const basicAuth = require('basic-auth');
 const config = require('config');
 const UserService = require('../services/UserService');
+const lib = require('../mylib');
 
 const jwtSecret = config.get('jwtSecret');
 
@@ -29,7 +30,7 @@ module.exports = function auth(req, res, next) {
     } catch (error) {
       return res.sendStatus(401);
     }
-    req.auth = { username: decoded.username };
+    req.auth = { mode: 'jwt', username: decoded.username };
     next();
   }
   // try basic auth
@@ -40,9 +41,9 @@ module.exports = function auth(req, res, next) {
   if (basicUser) {
     UserService.basicAuth(basicUser.name, basicUser.pass)
     .then((dbuser) => {
-      req.auth = { username: dbuser.username };
+      req.auth = { mode: 'basic', username: dbuser.username };
       next();
     })
-    .catch(() => res.sendStatus(401));
+    .catch((err) => lib.cerror(err, res));
   }
 };
