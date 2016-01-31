@@ -1,5 +1,5 @@
 const config = require('config');
-const pgpromise = require('pg-promise');
+const pgpromise = require('pg-promise')();
 
 const options = {
   host: config.get('postgresql.host'),

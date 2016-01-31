@@ -10,6 +10,7 @@
     "port":"5432",
     "user":"microchatter",
     "password":"micro123",
-    "database":"microchatter"
+    "database":"microchatter",
+    "schema":"production"
   }
 }

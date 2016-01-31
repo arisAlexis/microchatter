@@ -1,6 +1,8 @@
 const app = require('express')();
-const usersRouter = require('routes/usersRouter');
-const chatsRouter = require('routes/chatsRouter');
+const usersRouter = require('./js/routes/usersRouter');
+const chatsRouter = require('./js/routes/chatsRouter');
 
 app.use('/users', usersRouter);
-app.use('/chats', chatsRouter);
+//app.use('/chats', chatsRouter);
+
+module.exports = app;

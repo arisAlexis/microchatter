@@ -1,3 +1,10 @@
 {
-  "extends":"airbnb/base"
+  "extends":"airbnb/base",
+  "env": {
+    "mocha": true,
+    "node": true,
+  },
+  "rules":{
+    "max-len":[2,120,2]
+    }
 }

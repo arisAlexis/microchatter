@@ -1,0 +1,7 @@
+{
+  "postgresql":{
+    "user":"tester",
+    "password":"test123",
+    "schema":"test"
+  }
+}

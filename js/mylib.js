@@ -1,9 +1,11 @@
+'use strict';
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
 const secret = config.get('jwtSecret');
+const expiresInMinutes = 4320;
 
-module.exports = function buildToken(tokenData, expiresInMinutes = 43200) {
+module.exports = function buildToken(tokenData) {
   return jwt.sign(tokenData, secret, { expiresInMinutes });
 };
 

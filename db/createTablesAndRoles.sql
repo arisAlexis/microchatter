@@ -1,0 +1,22 @@
+DROP DATABASE microchatter;
+CREATE DATABASE microchatter;
+CREATE SCHEMA production;
+CREATE SCHEMA test;
+CREATE USER tester;
+CREATE USER microchatter;
+ALTER USER tester PASSWORD 'test123';
+ALTER USER microchatter PASSWORD 'micro123';
+GRANT ALL ON DATABASE microchatter TO microchatter;
+GRANT ALL ON DATABASE microchatter TO tester;
+CREATE SCHEMA production;
+CREATE SCHEMA test;
+GRANT ALL PRIVILEGES ON SCHEMA production TO microchatter;
+GRANT ALL PRIVILEGES ON SCHEMA test TO tester;
+GRANT ALL ON ALL TABLES IN SCHEMA production TO microchatter;
+GRANT ALL ON ALL TABLES IN SCHEMA test TO tester;
+ALTER ROLE tester with login;
+ALTER ROLE microchatter with login;
+
+create table production.users(user_id serial primary key, username varchar(100) not null, password varchar(100));
+create table production.chats (chat_id serial primary key, last_update timestamp, messages JSON[]);
+create table production.users_chats (chat_id integer references production.chats(chat_id), user_id integer references production.users(user_id));
