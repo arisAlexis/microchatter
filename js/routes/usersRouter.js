@@ -1,23 +1,13 @@
 'use strict';
 const UserService = require('../services/UserService');
-const jwt = require('express-jwt');
 const express = require('express');
-const config = require('config');
 const lib = require('../mylib');
 const auth = require('./auth');
-
 const router = new express.Router();
-const jwtSecret = config.get('jwtSecret');
 
-router.post('/login', (req, res) => {
-  if (!req.body.username || !req.body.password) return res.sendStatus(400);
-
-  UserService.basicAuth(req.body.username, req.body.password)
-  .then((user) => {
-    const token = lib.buildToken({ user_id: user.user_id, username: user.username });
-    return res.json({ token });
-  })
-  .catch((err) => lib.cerror(err, res));
+router.post('/login', auth, (req, res) => {
+  const token = lib.buildToken({ username: req.auth.username });
+  return res.json({ token });
 });
 
 /**
@@ -25,24 +15,54 @@ router.post('/login', (req, res) => {
  */
 router.post('/', auth, (req, res) => {
   // only the admin account can perform registrations (that is called from the other backend)
-  if (req.mode === 'basic' && !req.auth.username === 'admin') return res.sendStatus(400);
+  let username;
+  if (req.auth.mode === 'basic') {
+    if (req.auth.username !== 'admin') return res.status(400).send({ error: 'only admin can register users' });
+    if (!req.body.username || ! req.body.password) return res.status(400).send({ error: 'no username or password on post body' });
+    username = req.body.username;
+  } else if (req.auth.mode === 'jwt') {
+    // password is optional here
+    if (req.auth.username === 'admin' && !req.body.username) return res.status(400).send({ error: 'no username found on post body' });
+    username = (req.auth.username === 'admin') ? req.body.username : req.auth.username;
+  } else return res.status(400).send({ error: 'unsupported authentication method (only jwt and basic auth)' });
 
-  if (!req.body.username || ! req.body.password) return res.sendStatus(400);
-
-  UserService.register(req.body.username, req.body.password)
+  UserService.register(username, req.body.password)
   .then((data) => {
-    const tokenData = { user_id: data.user_id, username: req.body.username };
+    const tokenData = { username: data.username };
     const token = lib.buildToken(tokenData);
     return res.json({ token });
   })
   .catch((err) => lib.cerror(err, res));
 });
 
-router.put('/', auth, (req, res) => {
-  if (!req.body.newPassword) return res.sendStatus(400);
+function _update(username, options) {
+  const validOptions = {
+    newPassword: options.newPassword,
+  };
+  return UserService.update(username, validOptions);
+}
 
-  UserService.changePassword(req.auth.username, req.body.newPassword)
-  .then(() => res.sendStatus(200))
+router.put('/:username', auth, (req, res) => {
+  if (req.auth.username !== 'admin' && req.auth.username !== req.params.username) {
+    return res.status(401);
+  }
+  _update(req.params.username, req.body)
+  .then(() => res.sendStatus(204))
+  .catch((err) => lib.cerror(err, res));
+});
+
+router.put('/', auth, (req, res) => {
+  _update(req.auth.username, req.body)
+  .then(() => res.sendStatus(204))
+  .catch((err) => lib.cerror(err, res));
+});
+
+
+// only the admin can delete users
+router.delete('/:username', auth, (req, res) => {
+  if (req.auth.username !== 'admin') return res.send(401);
+  UserService.del(req.params.username)
+  .then(() => res.sendStatus(204))
   .catch((err) => lib.cerror(err, res));
 });
 
