@@ -20,6 +20,19 @@ router.use('/:chat_id', auth, (req, res, next) => {
   next();
 });
 
+router.get('/:chat_id/messages', auth, (req, res) => {
+  if (!req.query.offset) req.query.offset = 0;
+  if (!req.query.limit) req.query.limit = 10;
+  req.checkQuery('offset').isInt();
+  req.checkQuery('limit').isInt();
+  const errors = req.validationErrors();
+  if (errors) return res.status(400).send(errors);
+
+  ChatService.getMessages(req.auth.username, req.params.chat_id, req.query.offset, req.query.limit)
+  .then((messages) => res.json(messages))
+  .catch((err) => lib.cerror(err, res));
+});
+
 router.post('/:chat_id/messages', (req, res) => {
   ChatService.sendToChat(req.auth.username, req.params.chat_id, req.body.message)
   .then(() => res.sendStatus(204))
@@ -28,7 +41,7 @@ router.post('/:chat_id/messages', (req, res) => {
 
 router.put('/:chat_id', (req, res) => {
   req.checkBody('status').optional().isAlpha();
-  req.checkBody('unread').optional().isInt();
+  req.sanitizeBody('read').toBoolean();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
 
@@ -36,9 +49,8 @@ router.put('/:chat_id', (req, res) => {
       ChatService.updateStatus(req.auth.username, req.params.chat_id, req.body.status)
       .then(() => res.sendStatus(204))
       .catch((err) => lib.cerror(err, res));
-    }
-    else if (req.body.unread) {
-      ChatService.updateUnread(req.auth.username, req.params.chat_id, req.body.unread)
+    } else if (req.body.read) {
+      ChatService.updateUnread(req.auth.username, req.params.chat_id, 0)
       .then(() => res.sendStatus(204))
       .catch((err) => lib.cerror(err, res));
     }

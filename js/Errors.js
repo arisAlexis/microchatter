@@ -48,3 +48,13 @@ class ServerError extends Error {
   }
 }
 exports.ServerError = ServerError;
+
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.code = 403;
+    this.message = message;
+    this.name = 'ForbiddenError';
+  }
+}
+exports.ForbiddenError = ForbiddenError;

@@ -80,7 +80,7 @@ exports.sendToChat = function sendToChat(sender, chat_id, message) {
   return _isMember(sender, chat_id)
   .then((isMember) => {
     if (!isMember) {
-      throw new Errors.UnauthorizedError();
+      throw new Errors.ForbiddenError();
     }
     return _sendMessage(sender, chat_id, message);
   });
@@ -90,6 +90,18 @@ exports.del = function del(username, chat_id) {
   return db.query('delete from ${schema~}.users_chats where chat_id = ${chat_id} and username = ${username} returning chat_id'
   , { schema, username, chat_id })
   .then(_wasUpdated);
+};
+
+exports.getMessages = function getMessages(username, chat_id, offset, limit) {
+  return _isMember(username, chat_id)
+  .then((isMember) => {
+    if (!isMember) {
+      throw new Errors.ForbiddenError();
+    }
+    return db.query('select messages[${offset}:${limit}] from ${schema~}.chats where chat_id = ${chat_id}'
+    , { schema, username, offset, limit, chat_id })
+    .then((res) => res[0]);
+  });
 };
 
 exports.getUserChats = function getUserChats(username, query) {
