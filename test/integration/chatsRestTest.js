@@ -7,9 +7,8 @@ const testUtil = require('../testUtil');
 const app = require('../../app');
 const lib = require('../../js/mylib');
 
-const jwtToken = lib.buildToken({
-  username: 'testUser1',
-});
+const jwtToken = lib.buildToken({ username: 'testUser1' });
+const secondToken = lib.buildToken({ username: 'testUser2' });
 
 describe('user CRUD', () => {
   beforeEach(testUtil.setupDb);
@@ -20,6 +19,14 @@ describe('user CRUD', () => {
     .set('Authorization', `Bearer ${jwtToken}`)
     .send({ message: 'hiya' })
     .expect(204)
+    .then(() =>
+      // this should also create a new chat between them
+      supertest(app)
+      .post('/chats/users/testUser3/messages')
+      .set('Authorization', `Bearer ${secondToken}`)
+      .send({ message: 'hiya b' })
+      .expect(204)
+    )
   );
   it('update chat', () => {
     const status = supertest(app)
@@ -48,7 +55,7 @@ describe('user CRUD', () => {
     .set('Authorization', `Bearer ${jwtToken}`)
     .expect(204)
   );
-  it.only('get messages from chat', () => {
+  it('get messages from chat', () => {
     const existing = supertest(app)
       .get('/chats/1/messages/')
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -58,10 +65,10 @@ describe('user CRUD', () => {
         expect(res.body.messages.length).to.equal(2);
       });
 
-    const secondToken = lib.buildToken({ username: 'testUser3' });
+    const thirdToken = lib.buildToken({ username: 'testUser3' });
     const notMember = supertest(app)
       .get('/chats/1/messages')
-      .set('Authorization', `Bearer ${secondToken}`)
+      .set('Authorization', `Bearer ${thirdToken}`)
       .query({ offset: 1, limit: 2 })
       .expect(403);
 

@@ -4,7 +4,8 @@
   "description": "A rest chat backend microservice",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha "
+    "start":"NODE_ENV=development nodejs --es_staging server.js",
+    "test": "NODE_ENV=test mocha --es_staging --full-trace"
   },
   "keywords": [
     "chat",

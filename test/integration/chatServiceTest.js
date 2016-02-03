@@ -19,7 +19,7 @@ describe('chat service  test', () => {
   });
   it('create a new chat', () => {
     const createChat = ChatService.__get__('_createChat');
-    return createChat('testUser2', 'testUser3').should.eventually.exist;
+    return createChat().should.eventually.exist;
   });
   it('check participation', () => {
     const isMember = ChatService.__get__('_isMember');
@@ -33,5 +33,12 @@ describe('chat service  test', () => {
   it('send new message to a chat', () =>
     ChatService.sendToChat('testUser1', 1, 'hey bro').should.eventually.be.fulfilled
     .then(() => ChatService.sendToChat('testUser3', 1, 'hey bro').should.eventually.be.rejected)
+  );
+  it('get user chats', () =>
+    ChatService.getChats('testUser1', 0, 10)
+      .then((chats) => {
+        expect(chats.length).to.equal(2);
+        expect(chats[0].title).to.equal('testUser2');
+      })
   );
 });

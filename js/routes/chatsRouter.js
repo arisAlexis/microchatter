@@ -13,6 +13,18 @@ router.post('/users/:username/messages', auth, (req, res) => {
   .catch((err) => lib.cerror(err, res));
 });
 
+router.get('/', auth, (req, res, next) => {
+  if (!req.query.offset || isNaN(req.query.offset)) req.query.offset = 0;
+  if (!req.query.limit || isNaN(req.query.limit)) req.query.limit = 10;
+  next();
+});
+
+router.get('/', (req, res) => {
+  ChatService.getChats(req.auth.username, req.query.offset, req.query.limit)
+  .then((chats) => res.json(chats))
+  .catch((err) => lib.cerror(err, res));
+});
+
 router.use('/:chat_id', auth, (req, res, next) => {
   req.checkParams('chat_id').isInt();
   const errors = req.validationErrors();
@@ -21,13 +33,6 @@ router.use('/:chat_id', auth, (req, res, next) => {
 });
 
 router.get('/:chat_id/messages', auth, (req, res) => {
-  if (!req.query.offset) req.query.offset = 0;
-  if (!req.query.limit) req.query.limit = 10;
-  req.checkQuery('offset').isInt();
-  req.checkQuery('limit').isInt();
-  const errors = req.validationErrors();
-  if (errors) return res.status(400).send(errors);
-
   ChatService.getMessages(req.auth.username, req.params.chat_id, req.query.offset, req.query.limit)
   .then((messages) => res.json(messages))
   .catch((err) => lib.cerror(err, res));
@@ -45,16 +50,17 @@ router.put('/:chat_id', (req, res) => {
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
 
-    if (req.body.status) {
-      ChatService.updateStatus(req.auth.username, req.params.chat_id, req.body.status)
-      .then(() => res.sendStatus(204))
-      .catch((err) => lib.cerror(err, res));
-    } else if (req.body.read) {
-      ChatService.updateUnread(req.auth.username, req.params.chat_id, 0)
-      .then(() => res.sendStatus(204))
-      .catch((err) => lib.cerror(err, res));
-    }
-    else return res.status(400).send({ error: 'status or unread field must be present' })
+  if (req.body.status) {
+    ChatService.updateStatus(req.auth.username, req.params.chat_id, req.body.status)
+    .then(() => res.sendStatus(204))
+    .catch((err) => lib.cerror(err, res));
+  } else if (req.body.read) {
+    ChatService.updateUnread(req.auth.username, req.params.chat_id, 0)
+    .then(() => res.sendStatus(204))
+    .catch((err) => lib.cerror(err, res));
+  } else {
+    return res.status(400).send({ error: 'status or unread field must be present' });
+  }
 });
 
 router.delete('/:chat_id', (req, res) => {

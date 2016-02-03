@@ -5,18 +5,24 @@ const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 const lib = require('../mylib');
 
-function _createChat(userA, userB) {
-  let chat_id;
-  return db.query('insert into ${schema~}.chats (last_update) values(to_timestamp(${tstamp})) returning chat_id'
-  , { schema, tstamp: lib.tstamp() })
-    .then((res) => {
-      chat_id = res[0].chat_id;
-      return db.query('insert into ${schema~}.users_chats (chat_id,username) values(${chat_id},${userA})'
-      , { schema, chat_id, userA })
-        .then(() => db.query('insert into ${schema~}.users_chats (chat_id,username) values(${chat_id},${userB})'
-        , { schema, chat_id, userB }));
-    })
-    .then(() => chat_id);
+function _createChat(title) {
+  return db.query('insert into ${schema~}.chats (title) values(${title}) returning chat_id'
+  , { schema, title })
+  .then((res) => res[0].chat_id);
+}
+
+function _addParticipants(chat_id, ...participants) {
+  const promiseArray = [];
+  participants.forEach((participant) => {
+    const ipromise = db.query('insert into ${schema~}.users_chats (chat_id,username) values(${chat_id},${username})'
+    , { schema, chat_id, username: participant });
+    promiseArray.push(ipromise);
+    const upromise = db.query('update ${schema~}.chats set participants = array_append(participants,${username}) where chat_id = ${chat_id}'
+    , { schema, chat_id, username: participant });
+    promiseArray.push(upromise);
+  });
+
+  return Promise.all(promiseArray);
 }
 
 function _findChatBetween(userA, userB) {
@@ -30,16 +36,19 @@ function _findChatBetween(userA, userB) {
 
 function _wasUpdated(res) {
   if (!res.length) throw new Errors.NotFoundError();
+  return;
 }
 
 function _sendMessage(sender, chat_id, message) {
-  return db.query('update ${schema~}.chats set messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
+  const tstamp = lib.tstamp();
+  return db.query('update ${schema~}.chats set last_update = to_timestamp(${tstamp}) , messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
   , {
     schema,
     chat_id,
+    tstamp,
     message: {
       sender,
-      tstamp: lib.tstamp(),
+      tstamp,
       body: message,
     },
   })
@@ -57,7 +66,14 @@ exports.quickSend = function quickSend(sender, receiver, message) {
   return _findChatBetween(sender, receiver)
     .catch((e) => {
       if (e instanceof Errors.NotFoundError) {
-        return _createChat(sender, receiver);
+        let chat_id;
+        return _createChat()
+                .then((cid) => {
+                  chat_id = cid;
+                  return _addParticipants(chat_id, sender, receiver);
+                })
+                // we just need to return this because _addParticipants doesn't return it
+                .then(() => chat_id);
       }
       throw e;
     })
@@ -104,6 +120,21 @@ exports.getMessages = function getMessages(username, chat_id, offset, limit) {
   });
 };
 
-exports.getUserChats = function getUserChats(username, query) {
-  db.query('select ');
-}
+exports.getChats = function getUserChats(username, offset, limit) {
+  return db.query('select c.chat_id, c.title, c.participants, c.messages[0:1], uc.unread from test.chats c inner join test.users_chats uc on c.chat_id = uc.chat_id where uc.username = ${username} and (uc.status = \'visible\' or uc.status is null) order by c.last_update desc limit ${limit} offset ${offset}'
+  , { schema, username, offset, limit })
+  .then((res) => {
+    // transformation
+    const chats = [];
+    res.forEach((row) => {
+      const chat = {
+        chat_id: row.chat_id,
+        last_message: row.messages[0],
+        unread: row.unread,
+        title: (row.title) ? row.title : row.participants.filter((p) => p !== username).join(','),
+      };
+      chats.push(chat);
+    });
+    return chats;
+  });
+};
