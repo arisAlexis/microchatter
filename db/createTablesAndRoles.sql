@@ -20,3 +20,4 @@ ALTER ROLE microchatter with login;
 create table production.users(user_id serial primary key, username varchar(100) not null, password varchar(100));
 create table production.chats (chat_id serial primary key, last_update timestamp, messages JSON[]);
 create table production.users_chats (chat_id integer references production.chats(chat_id), user_id integer references production.users(user_id));
+create unique index on production.users (username);

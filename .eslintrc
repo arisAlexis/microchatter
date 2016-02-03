@@ -5,6 +5,7 @@
     "node": true,
   },
   "rules":{
-    "max-len":[2,150,2]
+    "camelcase": [0, {properties: "never"}],
+    "max-len": [0,150,2]
     }
 }

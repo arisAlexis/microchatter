@@ -4,7 +4,7 @@
   "description": "A rest chat backend microservice",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha test/**/*Test.js"
+    "test": "NODE_ENV=test mocha "
   },
   "keywords": [
     "chat",
@@ -18,8 +18,10 @@
     "config": "^1.19.0",
     "express": "^4.13.4",
     "express-jwt": "^3.3.0",
+    "express-validator": "^2.19.0",
     "https": "^1.0.0",
     "jsonwebtoken": "^5.5.4",
+    "morgan": "^1.6.1",
     "nodemon": "^1.8.1",
     "pg-promise": "^3.1.0"
   },
@@ -29,6 +31,7 @@
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^4.0.0",
     "mocha": "^2.4.5",
+    "rewire": "^2.5.1",
     "supertest": "^1.1.0",
     "supertest-as-promised": "^2.0.2"
   }

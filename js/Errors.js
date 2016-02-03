@@ -38,3 +38,13 @@ class ConflictError extends Error {
   }
 }
 exports.ConflictError = ConflictError;
+
+class ServerError extends Error {
+  constructor(message) {
+    super(message);
+    this.code = 500;
+    this.message = message;
+    this.name = 'ServerError';
+  }
+}
+exports.ServerError = ServerError;

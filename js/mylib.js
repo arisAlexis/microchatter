@@ -20,6 +20,6 @@ exports.cerror = function cerror(err, res) {
   res.status(errorCode).send({ error: err.message });
 };
 
-exports.ustamp = function ustamp() {
+exports.tstamp = function tstamp() {
   return Math.round(new Date().getTime() / 1000);
 };
