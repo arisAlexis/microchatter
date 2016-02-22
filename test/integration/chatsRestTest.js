@@ -4,7 +4,15 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const supertest = require('supertest-as-promised');
 const testUtil = require('../testUtil');
-const app = require('../../app');
+const mockery = require('mockery');
+mockery.enable({
+  useCleanCache: true,
+  warnOnReplace: false,
+  warnOnUnregistered: false,
+});
+mockery.registerAllowable('../../js/app');
+mockery.registerSubstitute('../io.js', '../../test/integration/ioMock.js');
+const app = require('../../js/app');
 const lib = require('../../js/mylib');
 
 const jwtToken = lib.buildToken({ username: 'testUser1' });

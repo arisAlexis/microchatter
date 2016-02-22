@@ -1,10 +1,10 @@
 const app = require('express')();
 const bodyParser = require('body-parser');
-const usersRouter = require('./js/routes/usersRouter');
-const chatsRouter = require('./js/routes/chatsRouter');
+const usersRouter = require('./routes/usersRouter');
+const chatsRouter = require('./routes/chatsRouter');
 const expressValidator = require('express-validator');
 const morgan = require('morgan');
-const lib = require('./js/mylib');
+const lib = require('./mylib');
 
 app.use(morgan('short'));
 app.use(bodyParser.json());

@@ -4,11 +4,7 @@ var app=require('./app');
 var config=require('config');
 var https=require('https');
 var http=require('http');
-var redis = require('socket.io-redis');
 var fs = require('fs');
-var socketioJwt = require('socketio-jwt');
-
-if (process.env.NODE_ENV !== 'test') {
 
   const ssl_options = {
     key: fs.readFileSync(config.get('SSL.key')),
@@ -22,22 +18,6 @@ if (process.env.NODE_ENV !== 'test') {
     server = https.createServer(ssl_options, app).listen(config.get('port'));
   } else {
     server = http.createServer(app).listen(config.get('port'));
-  }
-
-  var io;
-  if (config.get('emit')) {
-    io = require('socket.io-emitter')({ host: config.get('redis.host'), port: config.get('redis.port') });
-  }
-  else {
-     io = require("socket.io")(server);
-     io.use(socketioJwt.authorize({
-       secret: config.get('jwtSecret'),
-       handshake: true
-     }));
-
-     io.on('connection', function (socket) {
-       socket.join(socket.decoded_token.username);
-     });
   }
 
   server.on('error', onError);
@@ -74,5 +54,5 @@ if (process.env.NODE_ENV !== 'test') {
     : 'port ' + addr.port;
     console.log('listening on ' + bind);
   }
-  exports.io = io;
-}
+
+module.exports = server;

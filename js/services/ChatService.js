@@ -4,7 +4,7 @@ const config = require('config');
 const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 const lib = require('../mylib');
-let io = require('../../server').io;
+const io = require('../io.js');
 
 function _createChat(title) {
   return db.query('insert into ${schema~}.chats (title) values(${title}) returning chat_id'
@@ -77,9 +77,7 @@ function _dispatch(sender, chat_id, message) {
   .then((rawChat) => {
     rawChat.participants.forEach((participant) => {
       if (participant !== sender) {
-        if (process.env.NODE_ENV !== 'test') {
-          io.to(participant).emit('newMessage', { chat_id, message });
-        }
+        io.to(participant).emit('newMessage', { chat_id, message });
       }
     });
   });

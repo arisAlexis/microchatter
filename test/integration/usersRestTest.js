@@ -4,7 +4,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const supertest = require('supertest-as-promised');
 const testUtil = require('../testUtil');
-const app = require('../../app');
+const app = require('../../js/app');
 const lib = require('../../js/mylib');
 
 const jwtToken = lib.buildToken({ username: 'testUser4' });
