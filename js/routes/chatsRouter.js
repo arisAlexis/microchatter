@@ -32,6 +32,12 @@ router.use('/:chat_id', auth, (req, res, next) => {
   next();
 });
 
+router.get('/:chat_id', auth, (req, res) => {
+  ChatService.getChat(req.auth.username, req.params.chat_id)
+  .then((chat) => res.json(chat))
+  .catch((err) => lib.cerror(err, res));
+});
+
 router.get('/:chat_id/messages', auth, (req, res) => {
   ChatService.getMessages(req.auth.username, req.params.chat_id, req.query.offset, req.query.limit)
   .then((messages) => res.json(messages))

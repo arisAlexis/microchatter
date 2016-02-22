@@ -4,7 +4,7 @@
   "description": "A rest chat backend microservice",
   "main": "server.js",
   "scripts": {
-    "start":"NODE_ENV=development nodejs --es_staging server.js",
+    "start": "nodejs --es_staging server.js",
     "test": "NODE_ENV=test mocha --es_staging --full-trace"
   },
   "keywords": [
@@ -24,7 +24,12 @@
     "jsonwebtoken": "^5.5.4",
     "morgan": "^1.6.1",
     "nodemon": "^1.8.1",
-    "pg-promise": "^3.1.0"
+    "pg-promise": "^3.1.0",
+    "redis": "^2.4.2",
+    "socket.io": "^1.4.5",
+    "socket.io-emitter": "^1.0.0",
+    "socket.io-redis": "^1.0.0",
+    "socketio-jwt": "^4.3.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",

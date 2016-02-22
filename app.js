@@ -14,7 +14,7 @@ app.use(expressValidator());
 app.use('/users', usersRouter);
 app.use('/chats', chatsRouter);
 
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   lib.cerror(err, res);
 });
 

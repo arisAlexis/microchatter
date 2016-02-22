@@ -1,9 +1,17 @@
 {
-  "secure":false,
-  "sslKey":"./keys/private-key.pem",
-  "sslCert":"./keys/cert.pem",
-  "sslPort":"443",
+  "secure":true,
+  "SSL":{
+      "key":"keys/privkey.pem",
+      "cert":"keys/cert.pem",
+      "ca":"keys/chain.pem"
+  },
   "port":8080,
+  "emit":false,
+  "redis":{
+       "host":"localhost",
+       "port":"6379",
+       "password":null
+  },
   "jwtSecret":"4iRwfYZuo5lGGNz",
   "postgresql":{
     "host":"localhost",

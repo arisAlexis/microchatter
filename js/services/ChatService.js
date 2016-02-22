@@ -4,6 +4,7 @@ const config = require('config');
 const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 const lib = require('../mylib');
+let io = require('../../server').io;
 
 function _createChat(title) {
   return db.query('insert into ${schema~}.chats (title) values(${title}) returning chat_id'
@@ -39,20 +40,67 @@ function _wasUpdated(res) {
   return;
 }
 
-function _sendMessage(sender, chat_id, message) {
+/**
+ * Transforms a raw postgresql row to a chat object to our liking like a simplified ORM
+ * @param  {string} username user to be excluded from the title,i.e the user who will receive the chat object
+ * @param  {object} row      raw postgresql object
+ * @return {object}          transformed object that includes fields for the view layer
+ */
+function _transformChat(username, row) {
+  const chat = {
+    chat_id: row.chat_id,
+    last_message: row.messages[0],
+    unread: row.unread,
+    title: (row.title) ? row.title : row.participants.filter((p) => p !== username).join(','),
+  };
+  return chat;
+}
+
+function _chatDetails(chat_id) {
+  return db.query('select chat_id,last_update,title,participants,messages[0-10] from ${schema~}.chats where chat_id = ${chat_id}'
+  , { schema, chat_id })
+  .then((res) => {
+    if (!res.length) throw new Errors.NotFoundError();
+    return res[0];
+  });
+}
+
+/**
+ * Real-time dispatch of a new message to all of the chat's participants using socketio
+ * @param  {string} sender  sender of message
+ * @param  {string} chat_id
+ * @param  {object} message
+ * @return {void}
+ */
+function _dispatch(sender, chat_id, message) {
+  return _chatDetails(chat_id)
+  .then((rawChat) => {
+    rawChat.participants.forEach((participant) => {
+      if (participant !== sender) {
+        if (process.env.NODE_ENV !== 'test') {
+          io.to(participant).emit('newMessage', { chat_id, message });
+        }
+      }
+    });
+  });
+}
+
+function _sendMessage(sender, chat_id, msg) {
   const tstamp = lib.tstamp();
+  const message = {
+    sender,
+    tstamp,
+    body: msg,
+  };
   return db.query('update ${schema~}.chats set last_update = to_timestamp(${tstamp}) , messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
   , {
     schema,
     chat_id,
     tstamp,
-    message: {
-      sender,
-      tstamp,
-      body: message,
-    },
+    message,
   })
-  .then(_wasUpdated);
+  .then(_wasUpdated)
+  .then(() => _dispatch(sender, chat_id, message));
 }
 
 function _isMember(username, chat_id) {
@@ -121,20 +169,16 @@ exports.getMessages = function getMessages(username, chat_id, offset, limit) {
 };
 
 exports.getChats = function getUserChats(username, offset, limit) {
-  return db.query('select c.chat_id, c.title, c.participants, c.messages[0:1], uc.unread from test.chats c inner join test.users_chats uc on c.chat_id = uc.chat_id where uc.username = ${username} and (uc.status = \'visible\' or uc.status is null) order by c.last_update desc limit ${limit} offset ${offset}'
+  return db.query('select c.chat_id, c.title, c.participants, c.messages[0:1], uc.unread from ${schema~}.chats c inner join ${schema~}.users_chats uc on c.chat_id = uc.chat_id where uc.username = ${username} and (uc.status = \'visible\' or uc.status is null) order by c.last_update desc limit ${limit} offset ${offset}'
   , { schema, username, offset, limit })
   .then((res) => {
     // transformation
     const chats = [];
-    res.forEach((row) => {
-      const chat = {
-        chat_id: row.chat_id,
-        last_message: row.messages[0],
-        unread: row.unread,
-        title: (row.title) ? row.title : row.participants.filter((p) => p !== username).join(','),
-      };
-      chats.push(chat);
-    });
+    res.forEach((row) => chats.push(_transformChat(username, row)));
     return chats;
   });
 };
+
+exports.getChat = function getChat(username, chat_id) {
+  return _chatDetails(chat_id).then((rawChat) => _transformChat(username, rawChat));
+}

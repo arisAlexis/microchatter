@@ -1,53 +1,79 @@
+'use strict';
+
 var app=require('./app');
 var config=require('config');
 var https=require('https');
 var http=require('http');
+var redis = require('socket.io-redis');
+var fs = require('fs');
+var socketioJwt = require('socketio-jwt');
 
-const ssl_options = {
-  key: fs.readFileSync(config.get('sslKey')),
-  cert: fs.readFileSync(config.get('sslCert')),
-};
+if (process.env.NODE_ENV !== 'test') {
 
-let server;
+  const ssl_options = {
+    key: fs.readFileSync(config.get('SSL.key')),
+    cert: fs.readFileSync(config.get('SSL.cert')),
+    ca: fs.readFileSync(config.get('SSL.ca'))
+  };
 
-if (config.get('secure')) {
-  server= https.createServer(ssl_options, app).listen(config.get('sslPort'));
-}
-else {
-  server=http.createServer(app).listen(config.get('port'));
-}
+  let server;
 
-server.on('error', onError);
-server.on('listening', onListening);
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
+  if (config.get('secure')) {
+    server = https.createServer(ssl_options, app).listen(config.get('port'));
+  } else {
+    server = http.createServer(app).listen(config.get('port'));
   }
 
-  var bind = typeof port === 'string'
+  var io = require("socket.io")(server);
+  if (config.get('emit')) {
+    io.adapter(redis({ host: config.get('redis.host'), port: config.get('redis.port') }));
+  }
+
+  io.use(socketioJwt.authorize({
+    secret: config.get('jwtSecret'),
+    handshake: true
+  }));
+
+  io.on('connection', function (socket) {
+    //console.log(socket.decoded_token.username + ' joined');
+    socket.join(socket.decoded_token.username);
+    //join rooms for all the groups
+    //groupService.findByUser(socket.decoded_token).forEach((g)=>socket.join(`group:${g.id)}`);
+  });
+
+  server.on('error', onError);
+  server.on('listening', onListening);
+
+  function onError(error) {
+    if (error.syscall !== 'listen') {
+      throw error;
+    }
+
+    var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+      case 'EACCES':
       console.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
-    case 'EADDRINUSE':
+      case 'EADDRINUSE':
       console.error(bind + ' is already in use');
       process.exit(1);
       break;
-    default:
+      default:
       throw error;
+    }
   }
-}
 
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
- console.log('listening on ' + bind);
+    console.log('listening on ' + bind);
+  }
+  exports.io = io;
 }

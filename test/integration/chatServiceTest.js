@@ -7,7 +7,10 @@ chai.use(chaiAsPromised);
 const testUtil = require('../testUtil');
 const rewire = require('rewire');
 const ChatService = rewire('../../js/services/ChatService');
-const Errors = require('../../js/Errors');
+// lets change the functions to dummy ones!
+ChatService.__set__('io', {
+  to: (username) => { console.log('emitting to ' + username); return { emit: (event, object) => { console.log(event, object); } }; },
+});
 
 describe('chat service  test', () => {
   beforeEach(testUtil.setupDb);

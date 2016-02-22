@@ -74,4 +74,13 @@ describe('user CRUD', () => {
 
     return Promise.all([existing, notMember]);
   });
+  it('get chat details', () => {
+    supertest(app)
+    .get('/chats/1')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .expect(200)
+    .then((res) => {
+      expect(res.body.title).to.equal('testUser1');
+    });
+  });
 });
