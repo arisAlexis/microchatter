@@ -24,22 +24,21 @@ if (process.env.NODE_ENV !== 'test') {
     server = http.createServer(app).listen(config.get('port'));
   }
 
-  var io = require("socket.io")(server);
+  var io;
   if (config.get('emit')) {
-    io.adapter(redis({ host: config.get('redis.host'), port: config.get('redis.port') }));
+    io = require('socket.io-emitter')({ host: config.get('redis.host'), port: config.get('redis.port') });
   }
+  else {
+     io = require("socket.io")(server);
+     io.use(socketioJwt.authorize({
+       secret: config.get('jwtSecret'),
+       handshake: true
+     }));
 
-  io.use(socketioJwt.authorize({
-    secret: config.get('jwtSecret'),
-    handshake: true
-  }));
-
-  io.on('connection', function (socket) {
-    //console.log(socket.decoded_token.username + ' joined');
-    socket.join(socket.decoded_token.username);
-    //join rooms for all the groups
-    //groupService.findByUser(socket.decoded_token).forEach((g)=>socket.join(`group:${g.id)}`);
-  });
+     io.on('connection', function (socket) {
+       socket.join(socket.decoded_token.username);
+     });
+  }
 
   server.on('error', onError);
   server.on('listening', onListening);
