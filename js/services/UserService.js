@@ -5,9 +5,13 @@ const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 
 exports.register = function register(username, password) {
-  // note that since only qualified users are allowed to add new users we do not need to stress about sql injections
-  return db.one('insert into ${schema~}.users(username,password) values(${username}, md5(${password})) returning username'
-  , { schema, username, password });
+  if (password) {
+    return db.one('insert into ${schema~}.users(username,password) values(${username}, md5(${password})) returning username'
+    , { schema, username, password });
+  } else {console.log('registering without')
+    return db.one('insert into ${schema~}.users(username) values(${username}) returning username'
+    , { schema, username });
+  }
 };
 
 exports.basicAuth = function basicAuth(username, password) {

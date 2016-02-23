@@ -6,8 +6,20 @@ const auth = require('./auth');
 const router = new express.Router();
 
 router.post('/login', auth, (req, res) => {
-  const token = lib.buildToken({ username: req.auth.username });
-  return res.json({ token });
+  // check if the user exists or not if we only have a jwt
+  if (req.auth.mode === 'jwt') {
+    UserService.find(req.auth.username)
+    .then(()=> res.sendStatus(200))
+    .catch((e) => {console.log('registering')
+      // we need to register him
+      UserService.register(req.auth.username)
+      .then(()=> res.sendStatus(200))
+      .catch((err) => lib.cerror(err, res));
+    });
+  } else if (req.auth.mode === 'basic') {
+    const token = lib.buildToken({ username: req.auth.username });
+    return res.json({ token });
+  }
 });
 
 /**

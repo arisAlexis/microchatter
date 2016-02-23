@@ -4,8 +4,17 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 const supertest = require('supertest-as-promised');
 const testUtil = require('../testUtil');
-const app = require('../../js/app');
 const lib = require('../../js/mylib');
+const UserService = require('../../js/services/UserService');
+const mockery = require('mockery');
+mockery.enable({
+  useCleanCache: true,
+  warnOnReplace: false,
+  warnOnUnregistered: false,
+});
+mockery.registerAllowable('../../js/app');
+mockery.registerSubstitute('../io.js', '../../test/integration/ioMock.js');
+const app = require('../../js/app');
 
 const jwtToken = lib.buildToken({ username: 'testUser4' });
 
@@ -73,6 +82,18 @@ describe('user CRUD', () => {
      .auth('testUser1', 'bogus')
      .set('Accept', 'application/json')
      .expect(401))
+  );
+  it.only('login with jwt and no db entry', () => 
+    UserService.del('testUser1')
+    .then(() => 
+      supertest(app)
+      .post('/users/login')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .set('Accept', 'application/json')
+      .expect(200)
+    )
+    .then(() => UserService.find('testUser4'))
+    .then((user) => expect(user.username).to.equal('testUser4'))
   );
   it('delete a user', () =>
     supertest(app)
