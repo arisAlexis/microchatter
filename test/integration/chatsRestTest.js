@@ -25,14 +25,14 @@ describe('user CRUD', () => {
     supertest(app)
     .post('/chats/users/testUser2/messages')
     .set('Authorization', `Bearer ${jwtToken}`)
-    .send({ message: 'hiya' })
+    .send({ body: 'hiya' })
     .expect(204)
     .then(() =>
       // this should also create a new chat between them
       supertest(app)
       .post('/chats/users/testUser3/messages')
       .set('Authorization', `Bearer ${secondToken}`)
-      .send({ message: 'hiya b' })
+      .send({ body: 'hiya b' })
       .expect(204)
     )
   );

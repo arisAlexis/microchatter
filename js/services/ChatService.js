@@ -83,12 +83,12 @@ function _dispatch(sender, chat_id, message) {
   });
 }
 
-function _sendMessage(sender, chat_id, msg) {
+function _sendMessage(sender, chat_id, body) {
   const tstamp = lib.tstamp();
   const message = {
     sender,
     tstamp,
-    body: msg,
+    body,
   };
   return db.query('update ${schema~}.chats set last_update = to_timestamp(${tstamp}) , messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
   , {
@@ -107,7 +107,7 @@ function _isMember(username, chat_id) {
   .then((res) => (res.length) ? true : false);
 }
 
-exports.quickSend = function quickSend(sender, receiver, message) {
+exports.quickSend = function quickSend(sender, receiver, body) {
   // first check if there is a chat between these two
   return _findChatBetween(sender, receiver)
     .catch((e) => {
@@ -123,7 +123,7 @@ exports.quickSend = function quickSend(sender, receiver, message) {
       }
       throw e;
     })
-    .then((chat_id) => _sendMessage(sender, chat_id, message));
+    .then((chat_id) => _sendMessage(sender, chat_id, body));
 };
 
 exports.updateStatus = function updateStatus(username, chat_id, status) {
@@ -138,13 +138,13 @@ exports.updateUnread = function updateUnread(username, chat_id, unread) {
   .then(_wasUpdated);
 };
 
-exports.sendToChat = function sendToChat(sender, chat_id, message) {
+exports.sendToChat = function sendToChat(sender, chat_id, body) {
   return _isMember(sender, chat_id)
   .then((isMember) => {
     if (!isMember) {
       throw new Errors.ForbiddenError();
     }
-    return _sendMessage(sender, chat_id, message);
+    return _sendMessage(sender, chat_id, body);
   });
 };
 

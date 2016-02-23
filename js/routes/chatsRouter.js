@@ -6,9 +6,9 @@ const auth = require('./auth');
 const router = new express.Router();
 
 router.post('/users/:username/messages', auth, (req, res) => {
-  if (!req.body.message) return res.status(400).send({ error: 'no message field found' });
+  if (!req.body.body) return res.status(400).send({ error: 'no message field found' });
 
-  ChatService.quickSend(req.auth.username, req.params.username, req.body.message)
+  ChatService.quickSend(req.auth.username, req.params.username, req.body.body)
   .then(() => res.sendStatus(204))
   .catch((err) => lib.cerror(err, res));
 });
