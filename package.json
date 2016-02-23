@@ -17,6 +17,7 @@
     "basic-auth": "^1.0.3",
     "body-parser": "^1.14.2",
     "config": "^1.19.0",
+    "cors": "^2.7.1",
     "express": "^4.13.4",
     "express-jwt": "^3.3.0",
     "express-validator": "^2.19.0",

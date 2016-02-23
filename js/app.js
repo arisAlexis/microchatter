@@ -5,7 +5,9 @@ const chatsRouter = require('./routes/chatsRouter');
 const expressValidator = require('express-validator');
 const morgan = require('morgan');
 const lib = require('./mylib');
+const cors = require('cors');
 
+app.use(cors());
 app.use(morgan('short'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
