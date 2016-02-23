@@ -8,7 +8,7 @@ const UserService = require('../services/UserService');
 
 router.post('/users/:username/messages', auth, (req, res) => {
   if (!req.body.body) return res.status(400).send({ error: 'no body field found' });
-
+console.log('in');
 // extra precaution because the receiver may not exist
   UserService.find(req.params.username)
   .then(() => ChatService.quickSend(req.auth.username, req.params.username, req.body.body))

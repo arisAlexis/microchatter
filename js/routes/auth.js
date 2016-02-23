@@ -11,7 +11,7 @@ const lib = require('../mylib');
 
 const jwtSecret = config.get('jwtSecret');
 
-function _getToken(req) {
+function _getToken(req) {console.log(req.headers);
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     return req.headers.authorization.split(' ')[1];
   } else if (req.query && req.query.token) {
@@ -35,7 +35,7 @@ module.exports = function auth(req, res, next) {
   }
   // try basic auth
   const basicUser = basicAuth(req);
-  if (basicUser && (!basicUser.name || !basicUser.pass)) {
+  if (!basicUser || (basicUser && (!basicUser.name || !basicUser.pass))) {
     return res.sendStatus(401);
   }
   if (basicUser) {

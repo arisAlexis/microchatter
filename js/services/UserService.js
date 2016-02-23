@@ -40,7 +40,7 @@ exports.del = function del(username) {
 exports.find = function find(username) {
   return db.query('select * from ${schema~}.users where username=${username}'
   , { schema, username })
-  .then((records) => {
+  .then((records) => {console.log(records)
     if (!records.length) throw new Errors.NotFoundError();
     return { username: records[0].username };
   });
