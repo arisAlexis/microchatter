@@ -14,9 +14,9 @@ exports.basicAuth = function basicAuth(username, password) {
   // todo sql injection with parameters
   return db.query('select username from ${schema~}.users where username=${username} and password=md5(${password})'
   , { schema, username, password })
-  .then((data) => {
-    if (!data.length) throw new Errors.UnauthorizedError();
-    return { username: data[0].username };
+  .then((records) => {
+    if (!records.length) throw new Errors.UnauthorizedError();
+    return { username: records[0].username };
   });
 };
 
@@ -35,4 +35,13 @@ exports.update = function update(username, options) {
 
 exports.del = function del(username) {
   return db.query('delete from ${schema~}.users where username = ${username}', { schema, username });
+};
+
+exports.find = function find(username) {
+  return db.query('select * from ${schema~}.users where username=${username}'
+  , { schema, username })
+  .then((records) => {
+    if (!records.length) throw new Errors.NotFoundError();
+    return { username: records[0].username };
+  });
 };

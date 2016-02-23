@@ -5,6 +5,7 @@ const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 const lib = require('../mylib');
 const io = require('../io.js');
+const UserService = require('./UserService');
 
 function _createChat(title) {
   return db.query('insert into ${schema~}.chats (title) values(${title}) returning chat_id'
@@ -120,8 +121,9 @@ exports.quickSend = function quickSend(sender, receiver, body) {
                 })
                 // we just need to return this because _addParticipants doesn't return it
                 .then(() => chat_id);
+      } else {
+        throw e;
       }
-      throw e;
     })
     .then((chat_id) => _sendMessage(sender, chat_id, body));
 };

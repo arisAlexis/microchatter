@@ -35,6 +35,13 @@ describe('user CRUD', () => {
       .send({ body: 'hiya b' })
       .expect(204)
     )
+    .then(() =>
+      supertest(app)
+      .post('/chats/users/bogusUser3/messages')
+      .set('Authorization', `Bearer ${secondToken}`)
+      .send({ body: 'hiya c' })
+      .expect(404)
+    )
   );
   it('update chat', () => {
     const status = supertest(app)

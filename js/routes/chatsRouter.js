@@ -4,11 +4,14 @@ const express = require('express');
 const lib = require('../mylib');
 const auth = require('./auth');
 const router = new express.Router();
+const UserService = require('../services/UserService');
 
 router.post('/users/:username/messages', auth, (req, res) => {
-  if (!req.body.body) return res.status(400).send({ error: 'no message field found' });
+  if (!req.body.body) return res.status(400).send({ error: 'no body field found' });
 
-  ChatService.quickSend(req.auth.username, req.params.username, req.body.body)
+// extra precaution because the receiver may not exist
+  UserService.find(req.params.username)
+  .then(() => ChatService.quickSend(req.auth.username, req.params.username, req.body.body))
   .then(() => res.sendStatus(204))
   .catch((err) => lib.cerror(err, res));
 });

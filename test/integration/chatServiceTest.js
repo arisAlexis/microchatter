@@ -1,4 +1,3 @@
-
 const chai = require('chai');
 const expect = chai.expect;
 const should = chai.should();
@@ -7,7 +6,6 @@ chai.use(chaiAsPromised);
 const testUtil = require('../testUtil');
 const rewire = require('rewire');
 const ChatService = rewire('../../js/services/ChatService');
-
 
 describe('chat service  test', () => {
   beforeEach(testUtil.setupDb);
