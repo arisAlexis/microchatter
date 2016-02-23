@@ -11,7 +11,7 @@ const lib = require('../mylib');
 
 const jwtSecret = config.get('jwtSecret');
 
-function _getToken(req) {console.log(req.headers);
+function _getToken(req) {
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     return req.headers.authorization.split(' ')[1];
   } else if (req.query && req.query.token) {
@@ -27,23 +27,24 @@ module.exports = function auth(req, res, next) {
     let decoded;
     try {
       decoded = jwt.verify(token, jwtSecret);
+      req.auth = { mode: 'jwt', username: decoded.username };
+      next();
+      return;
     } catch (error) {
       return res.sendStatus(401);
     }
-    req.auth = { mode: 'jwt', username: decoded.username };
-    next();
   }
   // try basic auth
   const basicUser = basicAuth(req);
-  if (!basicUser || (basicUser && (!basicUser.name || !basicUser.pass))) {
-    return res.sendStatus(401);
-  }
   if (basicUser) {
     UserService.basicAuth(basicUser.name, basicUser.pass)
     .then((dbuser) => {
       req.auth = { mode: 'basic', username: dbuser.username };
       next();
+      return;
     })
     .catch((err) => lib.cerror(err, res));
+  } else if (!basicUser || (basicUser && (!basicUser.name || !basicUser.pass))) {
+    return res.sendStatus(401);
   }
 };
