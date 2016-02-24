@@ -83,7 +83,7 @@ describe('user CRUD', () => {
      .set('Accept', 'application/json')
      .expect(401))
   );
-  it.only('login with jwt and no db entry', () => 
+  it('login with jwt and no db entry', () => 
     UserService.del('testUser1')
     .then(() => 
       supertest(app)

@@ -21,5 +21,5 @@ exports.cerror = function cerror(err, res) {
 };
 
 exports.tstamp = function tstamp() {
-  return Math.round(new Date().getTime() / 1000);
+  return Math.round(new Date().getTime());
 };

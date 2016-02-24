@@ -6,9 +6,9 @@
       "ca":"keys/chain.pem"
   },
   "port":8080,
-  "emit":false,
+  "emit":true,
   "redis":{
-       "host":"localhost",
+       "host":"172.17.0.1",
        "port":"6379",
        "password":null
   },

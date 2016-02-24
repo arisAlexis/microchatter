@@ -11,7 +11,7 @@ router.post('/users/:username/messages', auth, (req, res) => {
 // extra precaution because the receiver may not exist
   UserService.find(req.params.username)
   .then(() => ChatService.quickSend(req.auth.username, req.params.username, req.body.body))
-  .then(() => res.sendStatus(204))
+  .then(() => res.sendStatus(201))
   .catch((err) => lib.cerror(err, res));
 });
 
@@ -47,8 +47,8 @@ router.get('/:chat_id/messages', auth, (req, res) => {
 });
 
 router.post('/:chat_id/messages', (req, res) => {
-  ChatService.sendToChat(req.auth.username, req.params.chat_id, req.body.message)
-  .then(() => res.sendStatus(204))
+  ChatService.sendToChat(req.auth.username, req.params.chat_id, req.body.body)
+  .then(() => res.sendStatus(201))
   .catch((err) => lib.cerror(err, res));
 });
 
@@ -57,8 +57,10 @@ router.put('/:chat_id', (req, res) => {
   req.sanitizeBody('read').toBoolean();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
-
+  
   if (req.body.status) {
+    if (!['blocked','hidden'].includes(req.body.status)) return res.status(400).send({ error: 'unrecognised status option' });
+    
     ChatService.updateStatus(req.auth.username, req.params.chat_id, req.body.status)
     .then(() => res.sendStatus(204))
     .catch((err) => lib.cerror(err, res));

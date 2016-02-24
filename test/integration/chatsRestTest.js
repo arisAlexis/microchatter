@@ -18,7 +18,7 @@ const lib = require('../../js/mylib');
 const jwtToken = lib.buildToken({ username: 'testUser1' });
 const secondToken = lib.buildToken({ username: 'testUser2' });
 
-describe('user CRUD', () => {
+describe('chats CRUD', () => {
   beforeEach(testUtil.setupDb);
 
   it('send quick message to user', () =>
@@ -26,14 +26,14 @@ describe('user CRUD', () => {
     .post('/chats/users/testUser2/messages')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send({ body: 'hiya' })
-    .expect(204)
+    .expect(201)
     .then(() =>
       // this should also create a new chat between them
       supertest(app)
       .post('/chats/users/testUser3/messages')
       .set('Authorization', `Bearer ${secondToken}`)
       .send({ body: 'hiya b' })
-      .expect(204)
+      .expect(201)
     )
     .then(() =>
       supertest(app)

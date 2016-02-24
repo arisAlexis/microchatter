@@ -8,7 +8,7 @@ exports.register = function register(username, password) {
   if (password) {
     return db.one('insert into ${schema~}.users(username,password) values(${username}, md5(${password})) returning username'
     , { schema, username, password });
-  } else {console.log('registering without')
+  } else {
     return db.one('insert into ${schema~}.users(username) values(${username}) returning username'
     , { schema, username });
   }

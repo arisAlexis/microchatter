@@ -39,4 +39,10 @@ describe('chat service  test', () => {
         expect(chats[0].title).to.equal('testUser2');
       })
   );
+  it('get total unread', () =>
+      ChatService.unread('testUser1')
+      .then((res) => {
+        expect(res.total).to.equal(1);
+      })
+  );
 });

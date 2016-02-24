@@ -91,6 +91,7 @@ function _sendMessage(sender, chat_id, body) {
     tstamp,
     body,
   };
+  
   return db.query('update ${schema~}.chats set last_update = to_timestamp(${tstamp}) , messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
   , {
     schema,
@@ -99,6 +100,12 @@ function _sendMessage(sender, chat_id, body) {
     message,
   })
   .then(_wasUpdated)
+  .then(() => db.query('update ${schema~}.users_chats set unread = unread +1 where chat_id = ${chat_id} and username <> ${sender} '
+  , {
+    schema,
+    chat_id,
+    sender
+    }))
   .then(() => _dispatch(sender, chat_id, message));
 }
 
@@ -181,4 +188,11 @@ exports.getChats = function getUserChats(username, offset, limit) {
 
 exports.getChat = function getChat(username, chat_id) {
   return _chatDetails(chat_id).then((rawChat) => _transformChat(username, rawChat));
+}
+
+exports.unread = function unread(username) {
+   return db.query('select sum(unread) as total from ${schema~}.users_chats where username = ${username} ', { schema, username })
+   .then((res) => {
+     return { total: parseInt(res[0].total) };
+   });
 }

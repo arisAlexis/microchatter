@@ -4,13 +4,14 @@ const express = require('express');
 const lib = require('../mylib');
 const auth = require('./auth');
 const router = new express.Router();
+const ChatService = require('../services/ChatService');
 
 router.post('/login', auth, (req, res) => {
   // check if the user exists or not if we only have a jwt
   if (req.auth.mode === 'jwt') {
     UserService.find(req.auth.username)
     .then(()=> res.sendStatus(200))
-    .catch((e) => {console.log('registering')
+    .catch((e) => {
       // we need to register him
       UserService.register(req.auth.username)
       .then(()=> res.sendStatus(200))
@@ -75,6 +76,12 @@ router.delete('/:username', auth, (req, res) => {
   if (req.auth.username !== 'admin') return res.send(401);
   UserService.del(req.params.username)
   .then(() => res.sendStatus(204))
+  .catch((err) => lib.cerror(err, res));
+});
+
+router.get('/unread', auth, (req, res) => {
+   ChatService.unread(req.auth.username)
+  .then((sum) => res.json({unread:sum}))
   .catch((err) => lib.cerror(err, res));
 });
 
