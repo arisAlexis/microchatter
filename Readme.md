@@ -1,6 +1,6 @@
 # Microchatter
 
-is a backend server (subsystem) that you can easily integrate with your existing website so that users can havea mailbox and real-time communication.  
+is a backend server (subsystem) that you can easily integrate with your existing website so that users can have a mailbox and real-time chat.  
 
 ## Installation
 
@@ -10,7 +10,7 @@ is a backend server (subsystem) that you can easily integrate with your existing
 4. `su - postgres`
 5. `psql -d microchatter -f path_to_project/db/createTablesAndRoles.sql`
 6. `psql -d microchatter -f test.sql` (optional only if you want to run the tests to verify it is working)
-7. **edit** the config file default.json (and override it according to your environment)
+7. edit the config file sample.json to default.json (and override it according to your environment)
 8. `npm test test/integration/**/*.js`
 
 If everything is OK proceed to the next section.
@@ -26,7 +26,7 @@ Postgresql at least > **9.3x**
 Making a scalable chat is quite difficult. If you are planning to have millions of users probably this chat is not for you. Otherwise for medium sites and with   
 a proper postgresql installation it will be fine. The system uses the powerfull postgresql Arrays to store messages so not many indices and relations are used.
 
-The idea is to have a one to one relationship with all the users of your existing database to this database so integration takes minimal effort. 
+The idea is to have a one to one relationship with all the users of your existing database to this database so integration takes minimal effort.
 Then you can use the system either by logging your client with **basic auth** or by using [JWT](http://www.postgresql.org/download/) (recommended)
 If you chose the basic auth method you can execute all requests with these credentials (only on *HTTPS*) or use the returned jwt token.
 
@@ -49,16 +49,41 @@ This backend  is totally front-end framework agnostic, you can use the [REST](#r
 
 Have a look at the [snippets]() directory for examples and tips
 
-## <a name="rest"></a>Rest Endpoints
+## Configuration
 
-# /users
+```
+{
+  "secure":true,
+  "SSL":{
+      "key":"keys/privkey.pem",
+      "cert":"keys/cert.pem",
+      "ca":"keys/chain.pem"
+  },
+  "port":8080,
+  "emit":true,
+  "redis":{
+       "host":"172.17.0.1",
+       "port":"6379",
+       "password":null
+  },
+  "jwtSecret":"a secret",
+  "postgresql":{
+    "host":"localhost",
+    "port":"5432",
+    "user":"microchatter",
+    "password":"micro123",
+    "database":"microchatter",
+    "schema":"production"
+  }
+}
+```
+Explanation  
+secure: for using SSL, you can easily obtain keys for free from [letsencrypt](https://letsencrypt.org)
+emit: means that you will be using a redis database to emit events to the socket.io server vs running it embedded
 
-`POST /login` Basic Auth or JWT `Bearer` returns JWT token (weather you want it or not :)
-`POST /register` Basic Auth or JWT **as admin** payload `{ username: String, password: String (optional) }`
+## REST API
 
-# /chats
-
-
+Please take a look at the [WIKI](https://github.com/arisalexis/microchatter/wiki)
 
 ## Contributing
 

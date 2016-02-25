@@ -10,11 +10,11 @@ router.post('/login', auth, (req, res) => {
   // check if the user exists or not if we only have a jwt
   if (req.auth.mode === 'jwt') {
     UserService.find(req.auth.username)
-    .then(()=> res.sendStatus(200))
-    .catch((e) => {
+    .then(() => res.sendStatus(200))
+    .catch(() => {
       // we need to register him
       UserService.register(req.auth.username)
-      .then(()=> res.sendStatus(200))
+      .then(() => res.sendStatus(200))
       .catch((err) => lib.cerror(err, res));
     });
   } else if (req.auth.mode === 'basic') {
@@ -80,8 +80,8 @@ router.delete('/:username', auth, (req, res) => {
 });
 
 router.get('/unread', auth, (req, res) => {
-   ChatService.unread(req.auth.username)
-  .then((sum) => res.json({unread:sum}))
+  ChatService.unread(req.auth.username)
+  .then((sum) => res.json({ unread: sum }))
   .catch((err) => lib.cerror(err, res));
 });
 

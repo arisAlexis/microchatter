@@ -5,7 +5,6 @@ const Errors = require('../Errors');
 const schema = config.get('postgresql.schema');
 const lib = require('../mylib');
 const io = require('../io.js');
-const UserService = require('./UserService');
 
 function _createChat(title) {
   return db.query('insert into ${schema~}.chats (title) values(${title}) returning chat_id'
@@ -91,7 +90,7 @@ function _sendMessage(sender, chat_id, body) {
     tstamp,
     body,
   };
-  
+
   return db.query('update ${schema~}.chats set last_update = to_timestamp(${tstamp}) , messages = array_prepend(${message},messages) where chat_id = ${chat_id} returning chat_id'
   , {
     schema,

@@ -1,0 +1,24 @@
+{
+  "secure":true,
+  "SSL":{
+      "key":"keys/privkey.pem",
+      "cert":"keys/cert.pem",
+      "ca":"keys/chain.pem"
+  },
+  "port":8080,
+  "emit":true,
+  "redis":{
+       "host":"172.17.0.1",
+       "port":"6379",
+       "password":null
+  },
+  "jwtSecret":"a secret",
+  "postgresql":{
+    "host":"localhost",
+    "port":"5432",
+    "user":"microchatter",
+    "password":"micro123",
+    "database":"microchatter",
+    "schema":"production"
+  }
+}
