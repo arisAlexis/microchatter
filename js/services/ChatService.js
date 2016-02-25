@@ -192,7 +192,5 @@ exports.getChat = function getChat(username, chat_id) {
 
 exports.unread = function unread(username) {
    return db.query('select sum(unread) as total from ${schema~}.users_chats where username = ${username} ', { schema, username })
-   .then((res) => {
-     return { total: parseInt(res[0].total) };
-   });
+   .then((res) => ({ total: parseInt(res[0].total) }));
 }

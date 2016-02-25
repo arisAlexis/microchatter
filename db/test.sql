@@ -17,3 +17,8 @@ INSERT INTO test.users_chats (chat_id,username) values(2,'testUser1');
 INSERT INTO test.users_chats (chat_id,username) values(2,'testUser3');
 
 SELECT setval('test.chats_chat_id_seq', (SELECT MAX(chat_id) from test.chats));
+
+GRANT ALL PRIVILEGES ON SCHEMA production TO microchatter;
+GRANT ALL PRIVILEGES ON SCHEMA test TO tester;
+GRANT ALL ON ALL TABLES IN SCHEMA production TO microchatter;
+GRANT ALL ON ALL TABLES IN SCHEMA test TO tester;
