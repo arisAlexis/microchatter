@@ -6,10 +6,10 @@ const schema = config.get('postgresql.schema');
 
 exports.register = function register(username, password) {
   if (password) {
-    return db.one('insert into ${schema~}.users(username,password) values(${username}, md5(${password})) returning username'
+    return db.one('insert into ${schema~}.users (username,password) values(${username}, md5(${password})) returning username'
     , { schema, username, password });
   } else {
-    return db.one('insert into ${schema~}.users(username) values(${username}) returning username'
+    return db.one('insert into ${schema~}.users (username) values(${username}) returning username'
     , { schema, username });
   }
 };
