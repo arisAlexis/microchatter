@@ -9,11 +9,12 @@ is a backend server (subsystem) that you can easily integrate with your existing
 4. `git clone https://github.com/arisalexis/microchatter.git`
 5. `cd microchatter; npm install`
 6. `su - postgres`
-7. `psql -d microchatter -f path_to_project/db/createTablesAndRoles.sql`
-8. edit the config file sample.json to default.json (and override it according to your environment)
-9. `npm test test/integration/**/*.js`
-10. `export NODE_ENV=production`
-11. `npm start` or you can use PM2 with `--node-args="-es_staging`
+7. `createdb microchatter`
+8. `psql -d microchatter -f path_to_project/db/createTablesAndRoles.sql`
+9.  edit the config file sample.json to default.json (and override it according to your environment)
+10. `npm test test/integration/**/*.js`
+11. `export NODE_ENV=production`
+12. `npm start` or you can use PM2 with `--node-args="-es_staging`
 
 If everything is OK proceed to the next section.
 *planning to build a read Docker image to facilitate installation*  
