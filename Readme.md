@@ -86,6 +86,8 @@ This backend  is totally front-end framework agnostic, you can use the [REST](#r
 secure: true/false for using SSL, you can easily obtain keys for free from [letsencrypt](https://letsencrypt.org)  
 emit: true/false means that you will be using a redis database to emit events to the socket.io server vs running it embedded
 
+**important** changing the password in the config file is not enough you need to run `ALTER USER microchatter PASSWORD 'newpass';` from the command line  
+
 ## REST API
 
 Please take a look at the [WIKI](https://github.com/arisalexis/microchatter/wiki)
