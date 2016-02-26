@@ -81,7 +81,7 @@ router.delete('/:username', auth, (req, res) => {
 
 router.get('/unread', auth, (req, res) => {
   ChatService.unread(req.auth.username)
-  .then((sum) => res.json({ unread: sum }))
+  .then((total) => res.json({ unread: total }))
   .catch((err) => lib.cerror(err, res));
 });
 

@@ -3,3 +3,4 @@ Dockerfile
 .dockerignore
 keys/
 npm-debug.log
+start_docker.sh

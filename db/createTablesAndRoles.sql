@@ -17,7 +17,11 @@ GRANT ALL ON ALL TABLES IN SCHEMA test TO tester;
 ALTER ROLE tester with login;
 ALTER ROLE microchatter with login;
 
-create table production.users(user_id serial primary key, username varchar(100) not null, password varchar(100));
-create table production.chats (chat_id serial primary key, last_update timestamp, messages JSON[]);
-create table production.users_chats (chat_id integer references production.chats(chat_id), user_id integer references production.users(user_id));
+drop table if exists production.users_chats;
+drop table if exists production.users;
+drop table if exists production.chats;
+create table production.users(username text primary key, password text);
+create table production.chats (chat_id serial primary key, title text, last_update timestamp, participants text[], messages JSON[]);
+create table production.users_chats (chat_id integer references test.chats(chat_id) on delete cascade, username text references test.users(username) on delete cascade, status text, unread smallint default 0, primary key (chat_id,username));
+
 create unique index on production.users (username);

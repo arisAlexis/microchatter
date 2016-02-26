@@ -5,16 +5,18 @@ is a backend server (subsystem) that you can easily integrate with your existing
 ## Installation
 1. Make sure you have the latest Node.js > 5.0 installed
 2. [download](http://www.postgresql.org/download/) and install postgresql
-3. `git clone https://github.com/arisalexis/microchatter.git`
-4. `cd microchatter; npm install`
-5. `su - postgres`
-6. `psql -d microchatter -f path_to_project/db/createTablesAndRoles.sql`
-7. edit the config file sample.json to default.json (and override it according to your environment)
-8. `npm test test/integration/**/*.js`
-9. `export NODE_ENV=production`
-10. `npm start` or you can use PM2 with `--node-args="-es_staging`
+3. `sudo service postgresql start`
+4. `git clone https://github.com/arisalexis/microchatter.git`
+5. `cd microchatter; npm install`
+6. `su - postgres`
+7. `psql -d microchatter -f path_to_project/db/createTablesAndRoles.sql`
+8. edit the config file sample.json to default.json (and override it according to your environment)
+9. `npm test test/integration/**/*.js`
+10. `export NODE_ENV=production`
+11. `npm start` or you can use PM2 with `--node-args="-es_staging`
 
 If everything is OK proceed to the next section.
+*planning to build a read Docker image to facilitate installation*  
 
 ## Stack used
 
@@ -37,6 +39,8 @@ There are multiple ways to populate the database:
 1. Use the rest admin interface and execute requests for every user on your system (slow)
 2. The first time each user logins into the system with a valid [JWT](https://jwt.io) token (edit config file) the user will be created
 3. Manually import into postgresql (table production.users) all usernames and passwords (using [MD5](http://www.postgresql.org/docs/9.0/static/functions-string.html))
+
+*bear in mind that all users must be in the database, you cannot have some users sending messages to others that don't exist*
 
 ## What can you do with it
 
@@ -77,9 +81,9 @@ This backend  is totally front-end framework agnostic, you can use the [REST](#r
   }
 }
 ```
-Explanation  
-secure: for using SSL, you can easily obtain keys for free from [letsencrypt](https://letsencrypt.org)  
-emit: means that you will be using a redis database to emit events to the socket.io server vs running it embedded
+
+secure: true/false for using SSL, you can easily obtain keys for free from [letsencrypt](https://letsencrypt.org)  
+emit: true/false means that you will be using a redis database to emit events to the socket.io server vs running it embedded
 
 ## REST API
 

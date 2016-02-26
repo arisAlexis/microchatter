@@ -50,6 +50,7 @@ function _transformChat(username, row) {
   const chat = {
     chat_id: row.chat_id,
     last_message: row.messages[0],
+    last_update: row.last_update,
     unread: row.unread,
     title: (row.title) ? row.title : row.participants.filter((p) => p !== username).join(','),
   };
@@ -103,8 +104,8 @@ function _sendMessage(sender, chat_id, body) {
   , {
     schema,
     chat_id,
-    sender
-    }))
+    sender,
+  }))
   .then(() => _dispatch(sender, chat_id, message));
 }
 
@@ -175,7 +176,7 @@ exports.getMessages = function getMessages(username, chat_id, offset, limit) {
 };
 
 exports.getChats = function getUserChats(username, offset, limit) {
-  return db.query('select c.chat_id, c.title, c.participants, c.messages[0:1], uc.unread from ${schema~}.chats c inner join ${schema~}.users_chats uc on c.chat_id = uc.chat_id where uc.username = ${username} and (uc.status = \'visible\' or uc.status is null) order by c.last_update desc limit ${limit} offset ${offset}'
+  return db.query('select c.chat_id,c.last_update, c.title, c.participants, c.messages[0:1], uc.unread from ${schema~}.chats c inner join ${schema~}.users_chats uc on c.chat_id = uc.chat_id where uc.username = ${username} and (uc.status = \'visible\' or uc.status is null) order by c.last_update desc limit ${limit} offset ${offset}'
   , { schema, username, offset, limit })
   .then((res) => {
     // transformation
@@ -187,9 +188,9 @@ exports.getChats = function getUserChats(username, offset, limit) {
 
 exports.getChat = function getChat(username, chat_id) {
   return _chatDetails(chat_id).then((rawChat) => _transformChat(username, rawChat));
-}
+};
 
 exports.unread = function unread(username) {
-   return db.query('select sum(unread) as total from ${schema~}.users_chats where username = ${username} ', { schema, username })
-   .then((res) => ({ total: parseInt(res[0].total) }));
-}
+  return db.query('select sum(unread) as total from ${schema~}.users_chats where username = ${username} ', { schema, username })
+  .then((res) => ({ total: parseInt(res[0].total) }));
+};
