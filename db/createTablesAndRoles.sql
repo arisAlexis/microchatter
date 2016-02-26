@@ -1,4 +1,6 @@
 DROP DATABASE microchatter;
+DROP SCHEMA if exists production CASCADE;
+DROP SCHEMA if exists test CASCADE;
 CREATE DATABASE microchatter;
 CREATE SCHEMA production;
 CREATE SCHEMA test;
@@ -22,6 +24,6 @@ drop table if exists production.users;
 drop table if exists production.chats;
 create table production.users(username text primary key, password text);
 create table production.chats (chat_id serial primary key, title text, last_update timestamp, participants text[], messages JSON[]);
-create table production.users_chats (chat_id integer references test.chats(chat_id) on delete cascade, username text references test.users(username) on delete cascade, status text, unread smallint default 0, primary key (chat_id,username));
+create table production.users_chats (chat_id integer references production.chats(chat_id) on delete cascade, username text references production.users(username) on delete cascade, status text, unread smallint default 0, primary key (chat_id,username));
 
 create unique index on production.users (username);
