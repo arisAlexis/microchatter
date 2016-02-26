@@ -45,7 +45,7 @@ There are multiple ways to populate the database:
 
 ## What can you do with it
 
-This backend  is totally front-end framework agnostic, you can use the [REST](#rest) server as you wish.
+This backend  is totally front-end framework agnostic, you can use the [REST](https://github.com/arisAlexis/microchatter/wiki) server as you wish.
 
 1. Send a message to another user (no brainer right?)
 2. Display all conversations with other users in a chronological order and displaying how many unread messages you have
