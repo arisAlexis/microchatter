@@ -13,6 +13,7 @@ create table production.chats (chat_id serial primary key, title text, last_upda
 create table production.users_chats (chat_id integer references production.chats(chat_id) on delete cascade, username text references production.users(username) on delete cascade, status text, unread smallint default 0, primary key (chat_id,username));
 
 create unique index on production.users (username);
+INSERT INTO production.users (username,password) values ('admin',md5('admin123'));
 
 CREATE USER tester;
 CREATE USER microchatter;
