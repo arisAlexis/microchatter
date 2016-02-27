@@ -6,6 +6,6 @@
   },
   "rules":{
     "camelcase": [0, {properties: "never"}],
-    "max-len": [0,150,2]
+    "max-len": [0,140,2]
     }
 }
