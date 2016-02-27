@@ -86,7 +86,11 @@ This backend  is totally front-end framework agnostic, you can use the [REST](ht
 secure: true/false for using SSL, you can easily obtain keys for free from [letsencrypt](https://letsencrypt.org)  
 emit: true/false means that you will be using a redis database to emit events to the socket.io server vs running it embedded
 
-**important** changing the password in the config file is not enough you need to run `ALTER USER microchatter PASSWORD 'newpass';` from the command line  
+* **Users and Passwords**  
+
+  1. `psql -d microchatter`
+  2. `ALTER USER microchatter PASSWORD 'newpass';` (don't forget to update default.json too)
+  3. `UPDATE production.users SET password=md5('newpass') WHERE username='admin'` (default 'admin123')
 
 ## REST API
 
